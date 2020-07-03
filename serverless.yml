@@ -7,6 +7,11 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - ses:SendEmail
+      Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-SendEmail"
 
 functions:
   SendEmail:
