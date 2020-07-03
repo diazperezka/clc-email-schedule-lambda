@@ -1,0 +1,30 @@
+service: aws-email-schedule-develop
+
+plugins:
+  - serverless-step-functions
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  SendEmail:
+    handler: sendEmail.handle
+
+stepFunctions:
+  stateMachines:
+    schedule_email:
+      name: schedule_email
+      definition:
+        Comment: "send email"
+        StartAt: "WaitForDueDate"
+        States:
+          WaitForDueDate:
+            Type: "Wait"
+            TimestampPath: "$.dueDate"
+            Next: "SendEmail"
+          SendEmail:
+            Type: "Task"
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-SendEmail"
+            End: true
